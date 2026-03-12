@@ -37,6 +37,62 @@ This document outlines the planning for **Project 0 – Two Sum**. The goal is t
 - Steps include checkout, set up environment, install dependencies, run tests, and optionally linting.
 - Docker build command should execute tests; failure aborts build.
 
+#### Recommended GitHub Actions Workflow
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up language environment
+        # adjust to the project's language, e.g., Python, Node, etc.
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: |
+          # replace with project's test command
+          pytest tests/
+
+      - name: Lint code (optional)
+        run: |
+          # e.g. flake8 or eslint
+          flake8 src/
+
+  docker-build:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker image with tests
+        run: |
+          docker build --tag twosum:latest .
+```
+
+> **Note:** Adjust versions, languages, and commands based on project specifics. The workflow prioritizes testing before dockerization to catch issues early.
+
 ### Timeline & Deliverables
 - **Week 1**: Algorithm coding & initial tests.
 - **Week 2**: Complete test coverage, documentation, and review.
